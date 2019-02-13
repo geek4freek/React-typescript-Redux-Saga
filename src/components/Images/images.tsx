@@ -1,4 +1,3 @@
-import Axios from "axios";
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
@@ -8,37 +7,44 @@ import { Iimage, Istateimage } from "src/Store/ImageDragger/types";
 
 interface Iprops {
   fetchRequest: () => {};
-  setimages: (images: Iimage[]) => {};
+  incrementPage: () => {};
 }
 
 class Images extends React.Component<Istateimage & Iprops, {}> {
   constructor(props: any) {
     super(props);
-    // this.state = this.props.fetchRequest();
-    this.handleSetImage();
+    this.props.fetchRequest();
+  }
+  public componentDidMount() {
+    document.addEventListener("scroll", this.trackscroll);
+  }
+  public componentWillUnmount() {
+    document.removeEventListener("scroll", this.trackscroll);
   }
 
-  public handleSetImage = async () => {
-    const image = await this.fetchImages();
-    this.props.setimages(image);
+  public trackscroll = () => {
+    const wrappedElement = document.getElementById("div_image");
+    if (this.isBottom(wrappedElement)) {
+      this.props.incrementPage();
+    }
   };
-  public async fetchImages() {
-    const { data: image } = await Axios.get<Iimage[]>(
-      `https://api.unsplash.com/photos/?page=2;client_id=${
-        process.env.REACT_APP_UNSPLASHED
-      }`
-    );
-    return image;
+  public isBottom(el: any) {
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight) {
+      return true;
+    } else {
+      return false;
+    }
   }
+
   public render() {
-    const images = [...this.props.images];
+    const images = { ...this.props };
     return (
       <React.Fragment>
-        <div className="container page-top">
+        <div className="container page-top" id="div_image">
           <div className="row">
-            {images.length <= 0
+            {images.images.length <= 0
               ? "noimages"
-              : images.map((image: Iimage) => {
+              : images.images.map((image: Iimage) => {
                   return (
                     <div
                       key={image.id}
@@ -59,7 +65,7 @@ class Images extends React.Component<Istateimage & Iprops, {}> {
 const mapStateToProps = ({ images }: Istateimage) => ({ images });
 const mapDisptchToProps = (dispatch: Dispatch) => ({
   fetchRequest: () => dispatch(Actions.fetchimages()),
-  setimages: (image: Iimage[]) => dispatch(Actions.setimage(image))
+  incrementPage: () => dispatch(Actions.incrementPageNumber())
 });
 export default connect(
   mapStateToProps,

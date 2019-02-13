@@ -1,7 +1,10 @@
-import { createStore } from "redux";
+import { applyMiddleware, createStore } from "redux";
+import createSagaMiddleware from "redux-saga";
 import imageReducer from "./ImageDragger/reducer/imagereducer";
+import rootSaga from "./Sagas";
 
-const rootstore = createStore(imageReducer);
-// tslint:disable-next-line: no-console
-console.log(rootstore);
+const sagaMiddleware = createSagaMiddleware();
+const rootstore = createStore(imageReducer, applyMiddleware(sagaMiddleware));
+sagaMiddleware.run(rootSaga);
+
 export default rootstore;
