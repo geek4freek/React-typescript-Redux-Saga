@@ -2,7 +2,8 @@ import { Reducer } from "redux";
 import { ImageDraggerTypes, Istateimage } from "../types";
 
 const intialState: Istateimage = {
-  images: []
+  images: [],
+  pagenumber: 1
 };
 
 const imageReducer: Reducer<Istateimage> = (state = intialState, action) => {
@@ -14,6 +15,11 @@ const imageReducer: Reducer<Istateimage> = (state = intialState, action) => {
     const newimages = { ...state };
     newimages.images = [...newimages.images, ...action.payload];
     return { ...state, ...newimages };
+  }
+  if (action.type === ImageDraggerTypes.PAGENUMBER_INCREASED) {
+    const newImages = { ...state };
+    newImages.pagenumber = action.payload;
+    return { ...state, ...newImages };
   }
   return state;
 };
